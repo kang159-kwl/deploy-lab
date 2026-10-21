@@ -1,0 +1,76 @@
+# 练习用的独立环境：服务名、端口、卷名、数据库名全部和现有项目错开。
+# 用 deploy-lab-pg 容器和 deploy-lab-pgdata 卷，不会碰到你正在跑的库。
+name: deploy-lab
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        VERSION: "0.1.0"
+    image: deploy-lab:0.1.0
+    container_name: deploy-lab-app
+    restart: unless-stopped
+    ports:
+      - "8090:8080"          # 宿主机 8090 -> 容器 8080，避免和占用 8080 的服务冲突
+    environment:
+      PORT: "8080"
+      LOG_LEVEL: debug
+      SQL_DSN: postgres://lab:labpass@postgres:5432/deploy_lab?sslmode=disable
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: labredis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app_data:/data
+    networks:
+      - deploy-lab-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: deploy-lab-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: labpass
+      POSTGRES_DB: deploy_lab
+      TZ: Asia/Shanghai
+    ports:
+      - "5433:5432"          # 宿主机 5433，避开本机可能已有的 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab -d deploy_lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - deploy-lab-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: deploy-lab-redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "labredis"]
+    ports:
+      - "6380:6379"          # 宿主机 6380，避开 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "labredis", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - deploy-lab-net
+
+volumes:
+  pg_data:
+    name: deploy-lab-pgdata
+  app_data:
+    name: deploy-lab-appdata
+
+networks:
+  deploy-lab-net:
+    name: deploy-lab-net

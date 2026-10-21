@@ -1,0 +1,13 @@
+.git
+.gitignore
+node_modules
+web/node_modules
+web/dist/*
+!web/dist/index.html
+*.db
+*.db-journal
+.env
+data
+logs
+README.md
+docs
