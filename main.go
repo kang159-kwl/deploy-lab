@@ -18,6 +18,7 @@ import (
 )
 
 // 前端构建产物被编进二进制，部署时只需要这一个可执行文件。
+//
 //go:embed all:web/dist
 var buildFS embed.FS
 
@@ -29,7 +30,10 @@ func main() {
 
 	// 数据库还没实现，这里先不阻塞启动。写完 db.Init 后，把错误返回改成
 	// os.Exit(1)：连不上库就不要再对外提供服务。
-	_ = db.Init(cfg)
+	if err := db.Init(cfg); err != nil {
+		slog.Error("数据库初始化失败", "err", err)
+		os.Exit(1)
+	}
 	defer db.Close()
 
 	srv := &http.Server{

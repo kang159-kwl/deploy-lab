@@ -1,11 +1,13 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"time"
 
 	"deploy-lab/internal/buildinfo"
+	"deploy-lab/internal/db"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +20,14 @@ var startedAt = time.Now()
 //   - 不要在健康检查里做重活，最慢几秒内必须返回
 //   - 响应里带上 hostname，多副本部署时能看出是哪台机器应答的
 func Health(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
+	defer cancel()
+
+	sqlDB, err := db.DB.DB()
+	if err != nil || sqlDB.PingContext(ctx) != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "degraded"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":        "ok",
 		"version":       buildinfo.Version,

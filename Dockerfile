@@ -9,6 +9,7 @@ RUN npm run build
 # ---- 阶段 2：编译 Go 二进制 ----
 FROM golang:1.26-alpine AS gobuilder
 ENV GO111MODULE=on CGO_ENABLED=0 GOOS=linux
+ENV GOPROXY=https://goproxy.cn,direct
 WORKDIR /build
 COPY go.mod go.sum ./
 RUN go mod download
