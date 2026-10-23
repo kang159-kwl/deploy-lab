@@ -10,6 +10,8 @@ RUN npm run build
 FROM golang:1.26-alpine AS gobuilder
 ENV GO111MODULE=on CGO_ENABLED=0 GOOS=linux
 ENV GOPROXY=https://goproxy.cn,direct
+# 小内存 ECS 上并行编译会打爆内存、被换页拖到几乎不动，限制为单包编译
+ENV GOFLAGS=-p=1
 WORKDIR /build
 COPY go.mod go.sum ./
 RUN go mod download

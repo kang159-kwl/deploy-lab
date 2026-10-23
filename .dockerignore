@@ -6,6 +6,7 @@ web/dist/*
 !web/dist/index.html
 *.db
 *.db-journal
+*.log
 .env
 data
 logs
