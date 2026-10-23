@@ -1,3 +1,9 @@
 # 依赖（其余文件全部提交）
 node_modules/
 web/node_modules/
+
+# 本地运行产物，不进版本库
+lab.db
+*.exe
+*.log
+web/dist.zip

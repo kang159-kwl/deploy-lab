@@ -50,7 +50,7 @@ func Init(cfg config.Config) error {
 
 	if cfg.SQLDSN == "" {
 		// TODO 1: 用 sqlite.Open("lab.db") 创建 dialector
-		dialector = sqlite.Open("lab.db?_pragma=encoding=UTF-8")
+		dialector = sqlite.Open("lab.db")
 		slog.Info("使用 SQLite", "path", "lab.db")
 	} else if strings.HasPrefix(cfg.SQLDSN, "postgres://") {
 		// TODO 2: 用 postgres.Open(cfg.SQLDSN) 创建 dialector

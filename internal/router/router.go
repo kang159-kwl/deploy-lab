@@ -24,9 +24,11 @@ func New(buildFS embed.FS) http.Handler {
 	apiGroup := r.Group("/api")
 	{
 		apiGroup.GET("/health", api.Health)
-		// TODO: 在这里挂你自己的业务路由，例如：
-		//   apiGroup.GET("/notes", api.ListNotes)
-		//   apiGroup.POST("/notes", api.CreateNote)
+		apiGroup.GET("/notes", api.ListNotes)
+		apiGroup.GET("/notes/:id", api.GetNote)
+		apiGroup.PUT("/notes/:id", api.UpdateNote)
+		apiGroup.DELETE("/notes/:id", api.DeleteNote)
+
 		apiGroup.POST("/notes", api.CreateNote)
 	}
 

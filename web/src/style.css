@@ -40,3 +40,95 @@ pre {
   overflow: auto;
   font-size: 13px;
 }
+
+section {
+  margin-top: 32px;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+#note-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#note-form input,
+#note-form textarea {
+  flex: 1;
+  min-width: 160px;
+  padding: 8px 10px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font: inherit;
+}
+
+#note-form textarea {
+  resize: vertical;
+  min-height: 36px;
+}
+
+.error {
+  margin-top: 12px;
+  color: #d1242f;
+  background: #fff1f0;
+  border-color: #ffcdd2;
+}
+
+#note-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#note-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
+#note-list li.empty {
+  justify-content: center;
+  color: #656d76;
+}
+
+.note-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-body strong {
+  display: block;
+}
+
+.note-body p {
+  margin: 4px 0 0;
+  color: #656d76;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+#note-list li input.edit-title,
+#note-list li textarea.edit-content {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font: inherit;
+  margin-bottom: 6px;
+}

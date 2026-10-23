@@ -3,9 +3,11 @@ package api
 import (
 	"deploy-lab/internal/db"
 	"deploy-lab/internal/model"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // CreateNote 创建便签
@@ -26,6 +28,7 @@ func CreateNote(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "JSON格式错误"})
+		return
 	}
 
 	// TODO 2: 验证 title 不能为空
@@ -50,4 +53,81 @@ func CreateNote(c *gin.Context) {
 	// TODO 5: 返回 201 Created 和创建后的 note 对象
 	// 提示: c.JSON(http.StatusCreated, note)
 	c.JSON(http.StatusCreated, note)
+}
+
+func ListNotes(c *gin.Context) {
+	var notes []model.Note
+	err := db.DB.Find(&notes).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询失败"})
+		return
+	}
+	c.JSON(http.StatusOK, notes)
+}
+func GetNote(c *gin.Context) {
+	id := c.Param("id")
+	var note model.Note
+	err := db.DB.First(&note, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "未找到"})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "失败"})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, note)
+}
+
+func UpdateNote(c *gin.Context) {
+	id := c.Param("id")
+	var note model.Note
+	err := db.DB.First(&note, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "未找到"})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "失败"})
+			return
+		}
+	}
+	var req struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "JSON格式错误"})
+		return
+	}
+	note.Title = req.Title
+	note.Content = req.Content
+	err = db.DB.Save(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "失败"})
+		return
+	}
+	c.JSON(http.StatusOK, note)
+}
+
+func DeleteNote(c *gin.Context) {
+	id := c.Param("id")
+	var note model.Note
+	err := db.DB.First(&note, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "未找到"})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "失败"})
+			return
+		}
+	}
+	err = db.DB.Delete(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "失败"})
+		return
+	}
+	c.Status(http.StatusNoContent)
 }
